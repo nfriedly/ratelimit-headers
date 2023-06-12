@@ -1677,20 +1677,23 @@ Two quota policies MUST NOT be associated with the same quota units value.<a hre
       <h2 id="name-server-behavior">
 <a href="#section-4" class="section-number selfRef">4. </a><a href="#name-server-behavior" class="section-name selfRef">Server Behavior</a>
       </h2>
-<p id="section-4-1">A server MAY return RateLimit header fields independently of the response status code. This includes on throttled responses. This document does not mandate any correlation between the RateLimit header field values and the returned status code.<a href="#section-4-1" class="pilcrow">¶</a></p>
-<p id="section-4-2">Servers should be careful when returning RateLimit header fields in redirection responses (i.e., responses with 3xx status codes) because a low remaining keyword value could prevent the client from issuing requests. For example, given the RateLimit header fields below, a client could decide to wait 10 seconds before following the "Location" header field (see <span><a href="https://rfc-editor.org/rfc/rfc9110#section-10.2.2" class="relref">Section 10.2.2</a> of [<a href="#HTTP" class="cite xref">HTTP</a>]</span>), because the remaining keyword value is 0.<a href="#section-4-2" class="pilcrow">¶</a></p>
-<div class="lang-http-message sourcecode" id="section-4-3">
+<p id="section-4-1">A server uses the RateLimit header fields to communicate its quota policies.
+A response that includes the RateLimit-Limit header field MUST also include the RateLimit-Reset.
+It MAY also include a RateLimit-Remaining header field.<a href="#section-4-1" class="pilcrow">¶</a></p>
+<p id="section-4-2">A server MAY return RateLimit header fields independently of the response status code. This includes on throttled responses. This document does not mandate any correlation between the RateLimit header field values and the returned status code.<a href="#section-4-2" class="pilcrow">¶</a></p>
+<p id="section-4-3">Servers should be careful when returning RateLimit header fields in redirection responses (i.e., responses with 3xx status codes) because a low remaining keyword value could prevent the client from issuing requests. For example, given the RateLimit header fields below, a client could decide to wait 10 seconds before following the "Location" header field (see <span><a href="https://rfc-editor.org/rfc/rfc9110#section-10.2.2" class="relref">Section 10.2.2</a> of [<a href="#HTTP" class="cite xref">HTTP</a>]</span>), because the remaining keyword value is 0.<a href="#section-4-3" class="pilcrow">¶</a></p>
+<div class="lang-http-message sourcecode" id="section-4-4">
 <pre>
 HTTP/1.1 301 Moved Permanently
 Location: /foo/123
 RateLimit: limit=10, remaining=0, reset=10
 
-</pre><a href="#section-4-3" class="pilcrow">¶</a>
+</pre><a href="#section-4-4" class="pilcrow">¶</a>
 </div>
-<p id="section-4-4">If a response contains both the Retry-After and the RateLimit header fields, the reset keyword value SHOULD reference the same point in time as the Retry-After field value.<a href="#section-4-4" class="pilcrow">¶</a></p>
-<p id="section-4-5">When using a policy involving more than one time window, the server MUST reply with the RateLimit header fields related to the time window with the lower remaining keyword values.<a href="#section-4-5" class="pilcrow">¶</a></p>
-<p id="section-4-6">A service using RateLimit header fields MUST NOT convey values exposing an unwanted volume of requests and SHOULD implement mechanisms to cap the ratio between the remaining and the reset keyword values (see <a href="#sec-resource-exhaustion" class="auto internal xref">Section 6.5</a>); this is especially important when a quota policy uses a large time window.<a href="#section-4-6" class="pilcrow">¶</a></p>
-<p id="section-4-7">Under certain conditions, a server MAY artificially lower RateLimit header field values between subsequent requests, e.g. to respond to Denial of Service attacks or in case of resource saturation.<a href="#section-4-7" class="pilcrow">¶</a></p>
+<p id="section-4-5">If a response contains both the Retry-After and the RateLimit header fields, the reset keyword value SHOULD reference the same point in time as the Retry-After field value.<a href="#section-4-5" class="pilcrow">¶</a></p>
+<p id="section-4-6">When using a policy involving more than one time window, the server MUST reply with the RateLimit header fields related to the time window with the lower remaining keyword values.<a href="#section-4-6" class="pilcrow">¶</a></p>
+<p id="section-4-7">A service using RateLimit header fields MUST NOT convey values exposing an unwanted volume of requests and SHOULD implement mechanisms to cap the ratio between the remaining and the reset keyword values (see <a href="#sec-resource-exhaustion" class="auto internal xref">Section 6.5</a>); this is especially important when a quota policy uses a large time window.<a href="#section-4-7" class="pilcrow">¶</a></p>
+<p id="section-4-8">Under certain conditions, a server MAY artificially lower RateLimit header field values between subsequent requests, e.g. to respond to Denial of Service attacks or in case of resource saturation.<a href="#section-4-8" class="pilcrow">¶</a></p>
 <div id="performance-considerations">
 <section id="section-4.1">
         <h3 id="name-performance-considerations">
